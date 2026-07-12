@@ -23,11 +23,11 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('sq1') {
+                withSonarQubeEnv('SonarScanner') {
                     sh '''
                         mvn sonar:sonar \
-                        -Dsonar.projectKey=time-tracker \
-                        -Dsonar.projectName="Time Tracker"
+                          -Dsonar.projectKey=time-tracker \
+                          -Dsonar.projectName="Time Tracker"
                     '''
                 }
             }
