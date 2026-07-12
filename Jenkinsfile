@@ -1,12 +1,17 @@
 pipeline {
     agent any
 
+    tools {
+        maven 'Maven3'
+    }
+
     stages {
 
         stage('Java Version') {
             steps {
                 sh 'java -version'
                 sh 'javac -version'
+                sh 'mvn -version'
             }
         }
 
