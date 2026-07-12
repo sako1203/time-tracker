@@ -10,45 +10,28 @@ pipeline {
             }
         }
 
-        stage('Backend Sonar') {
+        stage('Build') {
             steps {
-                dir('backend') {
-                    sh 'chmod +x mvnw'
+                sh 'mvn clean verify'
+            }
+        }
 
-                    withSonarQubeEnv('sq1') {
-                        sh '''
-                            ./mvnw clean verify sonar:sonar \
-                              -Dsonar.projectKey=mrinspecteur-backend \
-                              -Dsonar.projectName="MR Inspecteur Backend"
-                        '''
-                    }
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sq1') {
+                    sh '''
+                        mvn sonar:sonar \
+                        -Dsonar.projectKey=time-tracker \
+                        -Dsonar.projectName="Time Tracker"
+                    '''
                 }
             }
         }
 
-        stage('Frontend Install') {
+        stage('Quality Gate') {
             steps {
-                dir('frontend') {
-                    sh 'npm install'
-                }
-            }
-        }
-
-        stage('Frontend Sonar') {
-            steps {
-                dir('frontend') {
-                    script {
-                        def scannerHome = tool 'SonarScanner'
-
-                        withSonarQubeEnv('sq1') {
-                            sh """
-                                ${scannerHome}/bin/sonar-scanner \
-                                  -Dsonar.projectKey=mrinspecteur-frontend \
-                                  -Dsonar.projectName="MR Inspecteur Frontend" \
-                                  -Dsonar.sources=src
-                            """
-                        }
-                    }
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
